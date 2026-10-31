@@ -53,7 +53,7 @@ Registra capturas, monta equipos, consulta tipos y averigua dónde encontrar cad
 ## 🚀 Cómo usarla
 
 ### En línea
-Abre la URL donde la hayas desplegado:
+Abre la URL donde está desplegada:
 
 ```
 https://unovadex-pokemon-blanco-2.vercel.app
