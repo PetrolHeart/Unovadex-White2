@@ -56,27 +56,10 @@ Registra capturas, monta equipos, consulta tipos y averigua dónde encontrar cad
 Abre la URL donde la hayas desplegado:
 
 ```
-https://TU-PROYECTO.vercel.app
+https://unovadex-pokemon-blanco-2.vercel.app
 ```
 
 En Chrome, pulsa **⋮ → Instalar app** para tenerla con su icono y a pantalla completa.
-
-### En local
-La instalación como app necesita `localhost` o `https`; no funciona abriendo `index.html` con doble clic.
-
-```bash
-python3 -m http.server 8080
-```
-
-Y abre `http://localhost:8080`.
-
-### Desplegar en Vercel
-1. Sube esta carpeta a un repositorio de GitHub, con `index.html` en la raíz.
-2. En Vercel: **Add New → Project** e importa el repositorio.
-3. Framework Preset: **Other**, sin comando de build.
-4. **Deploy**.
-
----
 
 ## 💾 Tus datos
 
