@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101522">
+  <meta name="description" content="Pokédex personal de Pokémon Blanco 2">
+  <title>UnovaDex · Pokémon Blanco 2</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  color-scheme: dark;
+  --bg: #0d111b; --surface: #151c2b; --surface-2: #1b2435; --surface-3: #222d40;
+  --text: #f3f6fc; --muted: #9aa8bd; --line: rgba(165,184,211,.13);
+  --accent: #73a7ff; --accent-2: #9bc1ff; --green: #53d6a0; --shadow: 0 16px 42px rgba(0,0,0,.18);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f3f6fb; --surface: #ffffff; --surface-2: #f6f8fc; --surface-3: #e9eef7;
+  --text: #182235; --muted: #66758c; --line: rgba(45,65,96,.13);
+  --accent: #326fca; --accent-2: #245ba9; --green: #15986a; --shadow: 0 14px 36px rgba(35,54,86,.08);
+}
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+button, input { font: inherit; }
+button { color: inherit; }
+.app-shell { min-height: 100vh; }
+.topbar { height: 72px; padding: 0 clamp(18px,4vw,54px); display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); background:var(--surface); position:sticky; top:0; z-index:5; }
+.brand { display:flex; align-items:center; gap:11px; color:var(--text); text-decoration:none; }
+.brand-mark { display:grid; place-items:center; width:38px; height:38px; border-radius:12px; background:linear-gradient(145deg,#79b3ff,#436fd1); color:white; font:700 22px 'Space Grotesk'; box-shadow:0 6px 18px #477bc544; }
+.brand strong { display:block; font:700 17px 'Space Grotesk'; letter-spacing:-.5px; }
+.brand small { display:block; color:var(--muted); font-size:9px; letter-spacing:1.45px; margin-top:2px; }
+.top-actions { display:flex; align-items:center; gap:12px; }
+.icon-button,.avatar { border:1px solid var(--line); background:var(--surface-2); width:38px; height:38px; border-radius:12px; cursor:pointer; }
+.avatar { border-radius:50%; background:var(--surface-3); font-weight:800; color:var(--accent); }
+.layout { display:grid; grid-template-columns:238px minmax(0,1fr); max-width:1440px; margin:auto; min-height:calc(100vh - 72px); }
+.sidebar { border-right:1px solid var(--line); padding:28px 16px; display:flex; flex-direction:column; gap:7px; }
+.nav-label { color:var(--muted); font-size:10px; font-weight:800; letter-spacing:1.5px; padding:0 13px; margin:4px 0 8px; }
+.tools-label { margin-top:27px; }
+.nav-item { border:0; background:transparent; color:var(--muted); text-align:left; padding:12px 13px; border-radius:12px; display:flex; align-items:center; gap:13px; cursor:pointer; font-weight:600; transition:.18s; }
+.nav-item span { width:20px; text-align:center; font-size:19px; }
+.nav-item em { margin-left:auto; font-size:10px; font-style:normal; padding:3px 7px; border-radius:7px; background:var(--surface-3); }
+.nav-item:hover,.nav-item.active { background:var(--surface-3); color:var(--text); }
+.nav-item.active { box-shadow:inset 3px 0 var(--accent); }
+.sidebar-footer { margin-top:auto; padding:14px 10px 0; border-top:1px solid var(--line); color:var(--muted); font-size:11px; display:flex; align-items:center; gap:8px; }
+.status-dot { width:7px; height:7px; background:var(--green); border-radius:50%; }
+main { width:100%; max-width:1100px; padding:42px clamp(20px,5vw,66px) 70px; margin:0 auto; }
+.page { display:none; animation:appear .22s ease; }
+.page.active { display:block; }
+@keyframes appear { from {opacity:0; transform:translateY(5px)} to {opacity:1;transform:translateY(0)} }
+.welcome-row,.page-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.eyebrow { color:var(--accent); font-size:10px; font-weight:800; letter-spacing:1.7px; margin:0 0 9px; }
+h1,h2,p { margin-top:0; }
+h1,h2 { font-family:'Space Grotesk',sans-serif; letter-spacing:-.8px; }
+h1 { font-size:clamp(27px,4vw,38px); margin-bottom:8px; }
+h1 span { color:var(--accent-2); }
+h2 { font-size:21px; margin-bottom:0; }
+.muted { color:var(--muted); }
+.intro { margin-bottom:0; font-size:14px; }
+.region-stamp { width:92px; height:92px; flex:0 0 92px; border-radius:27px; display:flex; flex-direction:column; justify-content:center; align-items:center; transform:rotate(5deg); border:1px solid #78aaff55; background:radial-gradient(circle at 30% 25%,#4c76b955,transparent 65%),var(--surface); color:var(--accent-2); }
+.region-stamp span { font-size:9px; letter-spacing:2px; font-weight:800; }
+.region-stamp strong { font:700 25px 'Space Grotesk'; }
+.progress-card { margin-top:32px; padding:23px 25px; border:1px solid var(--line); border-radius:19px; background:linear-gradient(120deg,var(--surface),var(--surface-2)); box-shadow:var(--shadow); }
+.progress-copy { display:flex; justify-content:space-between; align-items:center; }
+.progress-copy h2 { font-size:30px; margin:0; }
+.progress-copy h2 small { font-size:15px; color:var(--muted); font-weight:500; }
+.progress-copy > strong { color:var(--green); font:700 24px 'Space Grotesk'; }
+.progress-track { height:9px; background:var(--surface-3); border-radius:20px; overflow:hidden; margin:19px 0 10px; }
+.progress-track span { display:block; height:100%; width:0; border-radius:20px; background:linear-gradient(90deg,#39bd91,#7ce0ae); transition:width .3s; }
+.small { font-size:11px; margin:0; }
+.section-heading { margin:34px 0 16px; }
+.section-heading .eyebrow { margin-bottom:5px; }
+.section-heading h2 { font-size:22px; }
+.stat-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:13px; }
+.stat-card { padding:17px; display:flex; align-items:center; gap:13px; background:var(--surface); border:1px solid var(--line); border-radius:16px; }
+.stat-icon { display:grid; place-items:center; width:39px; height:39px; border-radius:12px; font-size:19px; font-weight:800; }
+.stat-icon.green { color:#50d6a0; background:#36c18c1c; }.stat-icon.pink {color:#f28eb7;background:#e65e981c}.stat-icon.yellow {color:#e8bd59;background:#d6a4381c}.stat-icon.blue {color:#79aaff;background:#5790ef1c}
+.stat-card strong { display:block; font:700 23px 'Space Grotesk'; }.stat-card small { color:var(--muted); font-size:11px; }
+.quick-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; }
+.quick-card { position:relative; min-height:112px; padding:17px; text-align:left; border:1px solid var(--line); border-radius:16px; background:var(--surface); cursor:pointer; transition:.18s; }
+.quick-card:hover { transform:translateY(-2px); border-color:#75a7ff77; }
+.quick-card > span { display:block; color:var(--accent); font-size:20px; margin-bottom:9px; }
+.quick-card strong,.quick-card small { display:block; }.quick-card strong { font-size:13px; }.quick-card small { color:var(--muted); font-size:11px; margin-top:4px; }.quick-card b { position:absolute; right:17px; top:17px; color:var(--accent); }
+.footer-note { margin-top:38px; color:var(--muted); font-size:10px; text-align:center; }
+.page-heading { margin-bottom:26px; }.page-heading h1 { margin-bottom:6px; }.page-heading p:last-child { margin-bottom:0; font-size:13px; }
+.count-pill { white-space:nowrap; border:1px solid var(--line); background:var(--surface); padding:8px 11px; border-radius:10px; font-size:10px; font-weight:800; color:var(--accent); letter-spacing:.6px; }
+.search-box { height:49px; border:1px solid var(--line); background:var(--surface); border-radius:13px; display:flex; align-items:center; gap:11px; padding:0 15px; color:var(--muted); }.search-box span { font-size:25px; }.search-box input { flex:1; min-width:0; border:0; outline:0; color:var(--text); background:transparent; font-size:13px; }
+.filter-row { display:flex; gap:8px; overflow-x:auto; padding:15px 0 5px; scrollbar-width:none; }.filter-chip { border:1px solid var(--line); background:var(--surface); color:var(--muted); padding:8px 13px; border-radius:30px; white-space:nowrap; font-size:11px; font-weight:700; cursor:pointer; }.filter-chip.selected { color:var(--accent-2); border-color:#70a4ff77; background:#5c91e51a; }
+.empty-state { margin:38px auto 0; max-width:540px; padding:35px 25px; text-align:center; background:var(--surface); border:1px solid var(--line); border-radius:20px; }.empty-state.large { margin-top:25px; padding:48px 25px; }.empty-orb { display:grid; place-items:center; width:58px; height:58px; border-radius:19px; margin:0 auto 17px; background:var(--surface-3); color:var(--accent); font-size:27px; }.empty-state h2 { font-size:19px; margin-bottom:9px; }.empty-state p { color:var(--muted); font-size:12px; line-height:1.7; max-width:390px; margin:0 auto 17px; }
+.primary-button,.secondary-button { border:0; border-radius:10px; padding:11px 15px; font-weight:700; font-size:12px; }.primary-button { background:var(--accent); color:white; }.secondary-button { background:var(--surface-3); color:var(--muted); }.primary-button:disabled,.secondary-button:disabled { opacity:.65; cursor:not-allowed; }
+.backup-card { display:flex; gap:17px; padding:22px; background:var(--surface); border:1px solid var(--line); border-radius:16px; margin-bottom:13px; }.backup-icon { flex:0 0 43px; height:43px; display:grid; place-items:center; border-radius:13px; background:var(--surface-3); color:var(--accent); font-size:23px; }.backup-card h2 { font-size:17px; margin:1px 0 7px; }.backup-card p { color:var(--muted); font-size:12px; line-height:1.6; margin-bottom:13px; }.notice { padding:15px 17px; border-radius:12px; background:#d6a43812; border:1px solid #d6a43835; color:var(--muted); font-size:11px; line-height:1.6; }.notice strong { color:var(--text); }
+.mobile-nav { display:none; }
+@media (max-width:850px) { .layout { grid-template-columns:195px minmax(0,1fr); } main { padding:32px 25px 55px; }.stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:620px) {
+  .topbar { height:62px; padding:0 17px; }.brand-mark { width:34px;height:34px; }.brand strong {font-size:15px}.layout {display:block;min-height:calc(100vh - 62px)}.sidebar {display:none} main {padding:27px 17px 105px}
+  .region-stamp {width:67px;height:67px;flex-basis:67px;border-radius:20px}.region-stamp strong {font-size:20px}.region-stamp span {font-size:7px}
+  .welcome-row {align-items:flex-start}.intro {font-size:12px;line-height:1.5;max-width:270px}.progress-card {padding:19px;margin-top:24px}.progress-copy h2 {font-size:27px}.progress-copy > strong {font-size:21px}
+  .stat-grid {gap:9px}.stat-card {padding:13px 11px;gap:10px}.stat-icon {width:34px;height:34px}.stat-card strong {font-size:20px}.stat-card small {font-size:10px}
+  .quick-grid {gap:9px}.quick-card {padding:14px;min-height:108px}.quick-card strong {font-size:12px}.quick-card small {font-size:10px}
+  .page-heading {align-items:flex-start; flex-direction:column; gap:12px}.page-heading h1 {font-size:32px}.count-pill {font-size:9px}
+  .mobile-nav {position:fixed;z-index:10;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,1fr);padding:8px 5px calc(8px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 25px #00000012}
+  .mobile-item {border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 1px;cursor:pointer}.mobile-item span {font-size:19px;line-height:22px}.mobile-item small {font-size:9px;font-weight:700}.mobile-item.active {color:var(--accent-2)}
+  .empty-state {padding:28px 19px}.empty-state.large {padding:36px 20px}.backup-card {padding:17px;gap:13px}
+}
+
+
+/* Fase 2: Pokédex cargada y fichas */
+.pokedex-toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap}
+.pokedex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-top:18px}
+.pokemon-card{position:relative;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:13px;overflow:hidden;transition:transform .18s,border-color .18s}
+.pokemon-card:hover{transform:translateY(-2px);border-color:#75a7ff77}
+.pokemon-card-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:10px;font-weight:800}
+.pokemon-card-top .dex-number{letter-spacing:1px}
+.pokemon-sprite-wrap{height:112px;display:grid;place-items:center;margin:4px 0}
+.pokemon-sprite{max-width:100%;width:116px;height:104px;object-fit:contain;image-rendering:pixelated}
+.pokemon-card h3{font:700 15px 'Space Grotesk';text-align:center;margin:0 0 8px;text-transform:capitalize}
+.type-list{display:flex;justify-content:center;gap:5px;min-height:22px;flex-wrap:wrap}
+.type-tag{font-size:9px;font-weight:800;padding:4px 8px;border-radius:20px;color:#fff;text-transform:uppercase;letter-spacing:.3px}
+.type-unknown{background:var(--surface-3);color:var(--muted)}
+.card-actions{display:flex;gap:6px;margin-top:11px}
+.card-action{flex:1;border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:7px 3px;font-size:10px;font-weight:800;cursor:pointer;color:var(--muted)}
+.card-action.active{color:var(--accent-2);border-color:#70a4ff77;background:#5c91e51a}
+.card-action.captured{color:var(--green);border-color:#53d6a055}
+.card-open{position:absolute;inset:0 0 auto 0;height:190px;border:0;background:transparent;cursor:pointer}
+.card-open:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:17px}
+.loading-state,.error-state{margin-top:24px;padding:28px;text-align:center;border:1px solid var(--line);border-radius:17px;background:var(--surface);color:var(--muted);font-size:13px;line-height:1.6}
+.loading-spinner{width:25px;height:25px;border:3px solid var(--surface-3);border-top-color:var(--accent);border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.modal-backdrop{position:fixed;inset:0;background:#050812bb;z-index:30;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-backdrop.open{display:flex}
+.pokemon-modal{width:min(620px,100%);max-height:90vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 25px 80px #0008}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.modal-head h2{font-size:23px;text-transform:capitalize}
+.modal-close{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;width:36px;height:36px;cursor:pointer}
+.detail-hero{display:flex;align-items:center;gap:18px;margin:8px 0 18px}
+.detail-hero img{width:145px;height:135px;object-fit:contain;image-rendering:pixelated}
+.detail-hero p{color:var(--muted);font-size:12px;margin:0 0 7px}
+.detail-section{border-top:1px solid var(--line);padding-top:15px;margin-top:15px}
+.detail-section h3{font:700 13px 'Space Grotesk';margin:0 0 12px}
+.stat-line{display:grid;grid-template-columns:95px 35px 1fr;align-items:center;gap:8px;margin:8px 0;font-size:11px}
+.stat-track{height:7px;border-radius:10px;background:var(--surface-3);overflow:hidden}.stat-track span{display:block;height:100%;background:var(--accent);border-radius:10px}
+.evo-list{display:flex;flex-wrap:wrap;gap:8px}.evo-chip{padding:7px 10px;border-radius:10px;background:var(--surface-2);font-size:11px;text-transform:capitalize}
+.detail-note{font-size:11px;color:var(--muted);line-height:1.6}
+@media(max-width:850px){.pokedex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.pokedex-grid{gap:9px}.pokemon-card{padding:10px}.pokemon-sprite-wrap{height:95px}.pokemon-sprite{height:91px}.pokemon-card h3{font-size:13px}.card-action{font-size:9px}.pokemon-modal{padding:17px}.detail-hero img{width:110px;height:110px}}
+
+/* Fase 3: seguimiento personal */
+.note-indicator{display:inline-flex;align-items:center;gap:4px;margin:8px auto 0;padding:4px 7px;border-radius:7px;background:var(--surface-3);color:var(--muted);font-size:9px}
+.detail-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.detail-controls .card-action{min-width:105px;flex:1;padding:9px}
+.notes-area{width:100%;min-height:92px;resize:vertical;border:1px solid var(--line);border-radius:11px;padding:11px;background:var(--surface-2);color:var(--text);font:12px 'DM Sans',sans-serif;outline:none}
+.notes-area:focus{border-color:var(--accent)}
+.notes-help{font-size:10px;color:var(--muted);margin:7px 0 0}
+.save-note-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
+.save-note-status{font-size:10px;color:var(--green)}
+.stats-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.stats-tile{padding:17px;background:var(--surface);border:1px solid var(--line);border-radius:15px}
+.stats-tile strong{display:block;font:700 25px 'Space Grotesk';margin-bottom:4px}
+.stats-tile span{font-size:11px;color:var(--muted)}
+@media(max-width:420px){.detail-controls{gap:6px}.detail-controls .card-action{min-width:0}}
+
+
+/* Fase 4: creación y gestión de equipos */
+.teams-list{display:grid;gap:16px}.team-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.team-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.team-head h2{font-size:18px}.team-head-actions{display:flex;gap:7px;flex-wrap:wrap}.team-head-actions button,.team-remove{border:1px solid var(--line);background:var(--surface-2);color:var(--muted);border-radius:9px;padding:7px 10px;font-size:10px;font-weight:800;cursor:pointer}
+.team-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.team-slot{min-height:132px;border:1px dashed var(--line);border-radius:13px;background:var(--surface-2);padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative}.team-slot.filled{border-style:solid}.team-slot img{width:76px;height:70px;object-fit:contain;image-rendering:pixelated}.team-slot strong{font-size:12px;text-transform:capitalize}.team-slot small{font-size:9px;color:var(--muted);margin-top:4px}.team-slot .team-remove{position:absolute;right:6px;top:6px;padding:4px 7px}.team-slot select{max-width:100%;width:100%;border:1px solid var(--line);border-radius:8px;padding:7px;background:var(--surface);color:var(--text);font-size:10px}.team-summary{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.team-summary .type-tag{font-size:9px}.team-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;color:var(--muted);font-size:10px}
+@media(max-width:560px){.team-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.team-head{align-items:flex-start;flex-direction:column}.team-head-actions{width:100%}.team-head-actions button{flex:1}}
+
+/* Fase 5: tabla de tipos, copias de seguridad y evoluciones */
+.type-mode-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.type-picker{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.type-pick{border:2px solid transparent;border-radius:30px;padding:7px 12px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#fff;cursor:pointer;opacity:.72;transition:.15s}
+.type-pick:hover{opacity:1}.type-pick.selected{opacity:1;border-color:var(--text)}
+.type-result{display:grid;gap:12px}
+.eff-group{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:15px}
+.eff-group h3{font:700 13px 'Space Grotesk';margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.eff-mult{font-size:10px;padding:3px 8px;border-radius:7px;background:var(--surface-3);color:var(--muted)}
+.eff-group .type-list{justify-content:flex-start}
+.eff-none{font-size:11px;color:var(--muted)}
+.type-matrix-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface);max-height:70vh}
+.type-matrix{border-collapse:collapse;font-size:10px;width:max-content;min-width:100%}
+.type-matrix th,.type-matrix td{border:1px solid var(--line);text-align:center;padding:0;min-width:34px;height:30px;font-weight:700}
+.type-matrix thead th{position:sticky;top:0;z-index:2}.type-matrix tbody th{position:sticky;left:0;z-index:1}
+.type-matrix th{color:#fff;font-size:8px;text-transform:uppercase;padding:0 4px}
+.type-matrix .corner{background:var(--surface-3);color:var(--muted);left:0;z-index:3}
+.eff-0{background:#000;color:#fff}.eff-05{background:#c65b4c33;color:#e98a7c}.eff-2{background:#36c18c33;color:var(--green)}
+.type-matrix-legend{font-size:10px;color:var(--muted);margin:10px 2px 0}
+.backup-status{font-size:11px;margin:12px 0 0!important}.backup-status.ok{color:var(--green)!important}.backup-status.err{color:#f28e8e!important}
+.evo-tree{display:flex;flex-direction:column;gap:8px}
+.evo-step{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:11px}
+.enc-area{border:1px solid var(--line);border-radius:12px;background:var(--surface-2);padding:11px 13px;margin-bottom:8px}
+.enc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;text-transform:capitalize}
+.enc-ver{font-size:9px;font-weight:800;padding:3px 7px;border-radius:7px;background:var(--surface-3);color:var(--accent-2);text-transform:none}
+.enc-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:5px}
+.enc-list li{display:flex;justify-content:space-between;gap:10px;font-size:11px}
+.evo-method{font-size:10px;color:var(--muted);background:var(--surface-3);padding:4px 8px;border-radius:7px}
+
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="UnovaDex, inicio" data-page-link="home">
+        <span class="brand-mark">U</span>
+        <span><strong>UnovaDex</strong><small>POKÉMON BLANCO 2</small></span>
+      </a>
+      <div class="top-actions">
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+          <span id="theme-icon">☀</span>
+        </button>
+        <button class="avatar" type="button" aria-label="Tu perfil">U</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" aria-label="Navegación principal">
+        <p class="nav-label">MENÚ</p>
+        <button class="nav-item active" data-page="home"><span>⌂</span> Inicio</button>
+        <button class="nav-item" data-page="pokedex"><span>◉</span> Pokédex <em>301</em></button>
+        <button class="nav-item" data-page="teams"><span>♟</span> Mis equipos</button>
+        <button class="nav-item" data-page="stats"><span>▥</span> Estadísticas</button>
+        <p class="nav-label tools-label">HERRAMIENTAS</p>
+        <button class="nav-item" data-page="types"><span>◈</span> Tabla de tipos</button>
+        <button class="nav-item" data-page="backup"><span>⇅</span> Copias de seguridad</button>
+        <div class="sidebar-footer"><span class="status-dot"></span> Progreso guardado en este dispositivo</div>
+      </aside>
+
+      <main id="main-content" tabindex="-1">
+        <section class="page active" id="page-home">
+          <div class="welcome-row">
+            <div>
+              <p class="eyebrow">TU AVENTURA EN TESALIA</p>
+              <h1>¡Bienvenido a <span>UnovaDex</span>!</h1>
+              <p class="muted intro">Tu colección de Pokémon Blanco 2, organizada a tu manera.</p>
+            </div>
+            <div class="region-stamp" aria-hidden="true"><span>UNOVA</span><strong>BW2</strong></div>
+          </div>
+
+          <div class="progress-card">
+            <div class="progress-copy">
+              <div><p class="eyebrow">PROGRESO DE LA POKÉDEX</p><h2 id="home-progress">0 <small>/ 301</small></h2></div>
+              <strong id="home-percent">0%</strong>
+            </div>
+            <div class="progress-track"><span id="home-progress-bar"></span></div>
+            <p class="muted small">Pokémon registrados como capturados</p>
+          </div>
+
+          <div class="section-heading"><div><p class="eyebrow">RESUMEN</p><h2>Tu colección</h2></div></div>
+          <div class="stat-grid">
+            <article class="stat-card"><span class="stat-icon green">✓</span><div><strong id="captured-count">0</strong><small>Capturados</small></div></article>
+            <article class="stat-card"><span class="stat-icon pink">✦</span><div><strong id="shiny-count">0</strong><small>Shinies</small></div></article>
+            <article class="stat-card"><span class="stat-icon yellow">★</span><div><strong id="favorite-count">0</strong><small>Favoritos</small></div></article>
+            <article class="stat-card"><span class="stat-icon blue">♟</span><div><strong id="team-count">0</strong><small>Equipos</small></div></article>
+          </div>
+
+          <div class="section-heading recent-heading"><div><p class="eyebrow">A UN CLIC</p><h2>Accesos rápidos</h2></div></div>
+          <div class="quick-grid">
+            <button class="quick-card" data-page-link="pokedex"><span>◉</span><strong>Explorar Pokédex</strong><small>Consulta los 301 Pokémon</small><b>→</b></button>
+            <button class="quick-card" data-page-link="teams"><span>♟</span><strong>Crear un equipo</strong><small>Prepara tu equipo de 6</small><b>→</b></button>
+            <button class="quick-card" data-page-link="types"><span>◈</span><strong>Tabla de tipos</strong><small>Debilidades y resistencias</small><b>→</b></button>
+            <button class="quick-card" data-page-link="backup"><span>⇅</span><strong>Guardar progreso</strong><small>Exporta una copia de seguridad</small><b>→</b></button>
+          </div>
+          <p class="footer-note">UnovaDex · Proyecto personal no oficial de Pokémon.</p>
+        </section>
+
+        <section class="page" id="page-pokedex">
+          <div class="page-heading"><div><p class="eyebrow">REGISTRO REGIONAL</p><h1>Pokédex</h1><p class="muted">Los Pokémon de la Pokédex de Teselia de Blanco 2.</p></div><span class="count-pill">301 ENTRADAS</span></div>
+          <label class="search-box"><span>⌕</span><input id="pokemon-search" type="search" placeholder="Buscar por nombre o número..." autocomplete="off"></label>
+          <div class="filter-row">
+            <button class="filter-chip selected" data-filter="all">Todos</button>
+            <button class="filter-chip" data-filter="captured">Capturados</button>
+            <button class="filter-chip" data-filter="pending">Pendientes</button>
+            <button class="filter-chip" data-filter="shiny">Shinies</button>
+            <button class="filter-chip" data-filter="favorite">Favoritos</button>
+            <button class="filter-chip" data-filter="notes">Con notas</button>
+          </div>
+          <div class="pokedex-toolbar"><span class="muted small" id="dex-status">Conectando con la base de datos…</span><span class="count-pill" id="dex-count">0 / 301</span></div>
+          <div id="dex-loading" class="loading-state"><div class="loading-spinner"></div>Cargando las 301 entradas regionales…</div>
+          <div id="dex-error" class="error-state" hidden>No se ha podido cargar la Pokédex. Comprueba tu conexión a internet y vuelve a intentarlo.<br><br><button class="primary-button" id="dex-retry">Reintentar</button></div>
+          <div id="pokemon-grid" class="pokedex-grid"></div>
+          <p class="footer-note">Datos regionales de Blanco 2 · Sprites de quinta generación · Seguimiento personal y notas guardadas en este dispositivo.</p>
+        </section>
+
+        <section class="page" id="page-teams">
+          <div class="page-heading"><div><p class="eyebrow">ESTRATEGIA</p><h1>Mis equipos</h1><p class="muted">Crea varios equipos y organiza hasta seis Pokémon en cada uno.</p></div><button class="primary-button" id="create-team">＋ Crear equipo</button></div>
+          <div id="teams-list" class="teams-list"></div>
+          <div id="teams-empty" class="empty-state"><div class="empty-orb">♟</div><h2>Tu primer equipo te espera</h2><p>Crea un equipo, ponle nombre y añade hasta seis Pokémon de la Pokédex regional.</p><button class="primary-button" id="create-first-team">Crear mi primer equipo</button></div>
+        </section>
+
+        <section class="page" id="page-stats">
+          <div class="page-heading"><div><p class="eyebrow">TU PROGRESO</p><h1>Estadísticas</h1><p class="muted">Consulta cómo avanza tu colección.</p></div></div>
+          <div class="progress-card"><div class="progress-copy"><div><p class="eyebrow">POKÉDEX REGISTRADA</p><h2 id="stats-captured">0 <small>/ 301</small></h2></div><strong id="stats-percent">0%</strong></div><div class="progress-track"><span id="stats-progress-bar"></span></div><p class="muted small">Progreso de Pokémon marcados como capturados.</p></div><div class="stats-panel"><article class="stats-tile"><strong id="stats-shinies">0</strong><span>Shinies registrados</span></article><article class="stats-tile"><strong id="stats-favorites">0</strong><span>Favoritos</span></article><article class="stats-tile"><strong id="stats-notes">0</strong><span>Pokémon con notas</span></article><article class="stats-tile"><strong id="stats-pending">301</strong><span>Pendientes</span></article></div>
+        </section>
+
+        <section class="page" id="page-types">
+          <div class="page-heading"><div><p class="eyebrow">COMBATE</p><h1>Tabla de tipos</h1><p class="muted">Efectividades de los 17 tipos de quinta generación (el tipo Hada no existe en Unova).</p></div></div>
+          <div class="type-mode-row">
+            <button class="filter-chip selected" data-type-mode="defend">Defensa: ¿qué le hace daño?</button>
+            <button class="filter-chip" data-type-mode="attack">Ataque: ¿a qué le hago daño?</button>
+            <button class="filter-chip" data-type-mode="matrix">Tabla completa</button>
+          </div>
+          <div id="type-picker" class="type-picker"></div>
+          <div id="type-result" class="type-result"></div>
+          <div id="type-matrix-wrap" class="type-matrix-wrap" hidden></div>
+        </section>
+
+        <section class="page" id="page-backup">
+          <div class="page-heading"><div><p class="eyebrow">TUS DATOS</p><h1>Copias de seguridad</h1><p class="muted">Tu colección debe estar siempre bajo tu control.</p></div></div>
+          <div class="backup-card"><span class="backup-icon">⇧</span><div><h2>Exportar progreso</h2><p>Descarga un archivo con tus capturas, equipos, favoritos y notas.</p><button class="primary-button" id="export-json">Exportar JSON</button></div></div>
+          <div class="backup-card"><span class="backup-icon">⇩</span><div><h2>Importar progreso</h2><p>Recupera una copia de seguridad que hayas guardado anteriormente. Se reemplazará el progreso actual de este navegador.</p><button class="primary-button" id="import-json">Importar JSON</button><input type="file" id="import-file" accept="application/json,.json" hidden><p class="backup-status" id="backup-status" role="status"></p></div></div>
+          <div class="notice"><strong>Importante:</strong> el progreso se guarda localmente en este navegador. Exporta una copia con regularidad, sobre todo si vas a cambiar de dispositivo o navegador, o si vas a borrar los datos de navegación.</div>
+        </section>
+      </main>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Navegación móvil">
+      <button class="mobile-item active" data-page="home"><span>⌂</span><small>Inicio</small></button>
+      <button class="mobile-item" data-page="pokedex"><span>◉</span><small>Pokédex</small></button>
+      <button class="mobile-item" data-page="teams"><span>♟</span><small>Equipos</small></button>
+      <button class="mobile-item" data-page="stats"><span>▥</span><small>Progreso</small></button>
+      <button class="mobile-item" data-page="types"><span>◈</span><small>Tipos</small></button>
+    </nav>
+  </div>
+  <script>
+/*
+ * Base de datos de UnovaDex.
+ * Fase 1: estructura preparada.
+ * Fase 2: aquí se incorporarán los 301 registros verificados de la Pokédex de Teselia.
+ *
+ * Estructura prevista por Pokémon:
+ * {
+ *   id: 1, name: "Snivy", types: ["Planta"],
+ *   stats: { hp: 45, attack: 45, defense: 55, spAttack: 45, spDefense: 55, speed: 63 },
+ *   abilities: [], evolution: { evolvesTo: [2], method: "Nivel 17" },
+ *   locations: [], image: ""
+ * }
+ */
+window.UNOVA_POKEMON = [];
+
+  </script>
+  <script>
+/* UnovaDex · Fase 2: Pokédex regional, búsqueda, filtros y fichas */
+(() => {
+  const API = 'https://pokeapi.co/api/v2';
+  const DEX_URL = `${API}/pokedex/9/`; // Updated Unova: Black 2 / White 2
+  const SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/';
+  const STATIC_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-2-white-2/';
+  const THEME_KEY = 'unovadex-theme';
+  const PROGRESS_KEY = 'unovadex-progress';
+  const CACHE_KEY = 'unovadex-pokemon-cache-v1';
+  const pages = ['home','pokedex','teams','stats','types','backup'];
+  const typeNames = {normal:'Normal',fire:'Fuego',water:'Agua',electric:'Eléctrico',grass:'Planta',ice:'Hielo',fighting:'Lucha',poison:'Veneno',ground:'Tierra',flying:'Volador',psychic:'Psíquico',bug:'Bicho',rock:'Roca',ghost:'Fantasma',dragon:'Dragón',dark:'Siniestro',steel:'Acero',fairy:'Hada'};
+  const typeColors = {normal:'#92999f',fire:'#ee7847',water:'#5599e8',electric:'#e5bd39',grass:'#65ae62',ice:'#70c9c6',fighting:'#c65b4c',poison:'#a45caa',ground:'#c39b55',flying:'#829bd8',psychic:'#e36a91',bug:'#91a83d',rock:'#aa9253',ghost:'#6d68a8',dragon:'#6d69d8',dark:'#655b57',steel:'#8495a5',fairy:'#d68db4'};
+  const $ = id => document.getElementById(id);
+  const themeToggle = $('theme-toggle'), themeIcon = $('theme-icon');
+  function applyTheme(theme){document.documentElement.dataset.theme=theme;themeIcon.textContent=theme==='dark'?'☀':'☾';themeToggle.setAttribute('aria-label',theme==='dark'?'Cambiar a tema claro':'Cambiar a tema oscuro');try{localStorage.setItem(THEME_KEY,theme)}catch(_) {}}
+  let savedTheme='dark';try{savedTheme=localStorage.getItem(THEME_KEY)||'dark'}catch(_){}applyTheme(savedTheme);
+  themeToggle.addEventListener('click',()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+  function showPage(name){if(!pages.includes(name))return;document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===`page-${name}`));document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('main-content').focus({preventScroll:true});window.scrollTo({top:0,behavior:'smooth'});}
+  document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+  document.querySelectorAll('[data-page-link]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.pageLink)));
+
+  let pokemonList=[];let activeFilter='all';let progress=readProgress();let cache=readCache();let modal;
+  function readProgress(){try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}')}catch(_){return {}}}
+  function saveProgress(){try{localStorage.setItem(PROGRESS_KEY,JSON.stringify(progress))}catch(_){alert('No se ha podido guardar el progreso en este navegador.')}}
+  function readCache(){try{return JSON.parse(localStorage.getItem(CACHE_KEY)||'{}')}catch(_){return {}}}
+  function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify(cache))}catch(_){}}
+  function entryState(id){return progress.pokemon?.[id]||{status:'pending',shiny:false,favorite:false,notes:''}}
+  function updateDashboard(){const entries=Object.values(progress.pokemon||{});const captured=entries.filter(x=>x.status==='captured').length;const shinies=entries.filter(x=>x.shiny).length;const favorites=entries.filter(x=>x.favorite).length;const notes=entries.filter(x=>(x.notes||'').trim()).length;const teams=Array.isArray(progress.teams)?progress.teams.length:0;const percent=Math.round(captured/301*100);$('captured-count').textContent=captured;$('shiny-count').textContent=shinies;$('favorite-count').textContent=favorites;$('team-count').textContent=teams;$('home-progress').innerHTML=`${captured} <small>/ 301</small>`;$('home-percent').textContent=`${percent}%`;$('home-progress-bar').style.width=`${percent}%`;if($('stats-captured')){$('stats-captured').innerHTML=`${captured} <small>/ 301</small>`;$('stats-percent').textContent=`${percent}%`;$('stats-progress-bar').style.width=`${percent}%`;$('stats-shinies').textContent=shinies;$('stats-favorites').textContent=favorites;$('stats-notes').textContent=notes;$('stats-pending').textContent=Math.max(0,301-captured);}}
+  const escapeHTML=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function ensureTeams(){if(!Array.isArray(progress.teams))progress.teams=[];return progress.teams}
+  function renderTeams(){const teams=ensureTeams();$('teams-empty').hidden=teams.length>0;$('teams-list').innerHTML=teams.map(team=>{const members=Array.isArray(team.members)?team.members:[];const slots=Array.from({length:6},(_,i)=>{const id=members[i];if(id){const pokemon=pokemonList.find(x=>x.id===id);const name=pokemon?.name||`Pokémon #${id}`;const sprite=pokemon?`${SPRITE_BASE}${id}.gif`:'';const fallback=pokemon?`${STATIC_BASE}${id}.png`:'';const types=cache[id]?.types||[];return `<div class="team-slot filled"><button class="team-remove" data-team-remove="${team.id}" data-slot="${i}" aria-label="Quitar ${escapeHTML(name)}">✕</button>${pokemon?`<img src="${sprite}" onerror="this.src='${fallback}'" alt="">`:''}<strong>${escapeHTML(name.replace(/-/g,' '))}</strong><small>${types.length?types.map(t=>typeNames[t]||t).join(' · '):'Tipos por consultar'}</small></div>`}return `<div class="team-slot"><span class="muted" style="font-size:22px">＋</span><small>Hueco ${i+1}</small><select data-team-add="${team.id}" aria-label="Añadir Pokémon al hueco ${i+1}"><option value="">Añadir Pokémon…</option>${pokemonList.map(pk=>`<option value="${pk.id}">#${String(pk.dexNo).padStart(3,'0')} ${escapeHTML(pk.name.replace(/-/g,' '))}</option>`).join('')}</select></div>`}).join('');const typeSet=[...new Set(members.flatMap(id=>cache[id]?.types||[]))];return `<article class="team-card"><div class="team-head"><div><p class="eyebrow" style="margin-bottom:5px">EQUIPO · ${members.length}/6</p><h2>${escapeHTML(team.name||'Equipo sin nombre')}</h2></div><div class="team-head-actions"><button data-team-rename="${team.id}">✎ Renombrar</button><button data-team-delete="${team.id}">Eliminar</button></div></div><div class="team-slots">${slots}</div><div class="team-foot"><span>${members.length===6?'Equipo completo':'Puedes añadir '+(6-members.length)+' Pokémon'}</span><span>${members.length}/6 integrantes</span></div>${typeSet.length?`<div class="team-summary">${typeSet.map(t=>`<span class="type-tag" style="background:${typeColors[t]||'#777'}">${typeNames[t]||t}</span>`).join('')}</div>`:''}</article>`}).join('');updateDashboard();}
+  function createTeam(){const name=prompt('¿Qué nombre quieres ponerle al equipo?','Mi equipo');if(name===null)return;const clean=name.trim().slice(0,32);if(!clean){alert('Escribe un nombre para el equipo.');return}const teams=ensureTeams();teams.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:clean,members:[]});saveProgress();renderTeams()}
+  $('create-team').addEventListener('click',createTeam);$('create-first-team').addEventListener('click',createTeam);
+  $('teams-list').addEventListener('change',e=>{const select=e.target.closest('[data-team-add]');if(!select||!select.value)return;const team=ensureTeams().find(t=>t.id===select.dataset.teamAdd);if(!team)return;team.members=Array.isArray(team.members)?team.members:[];const id=Number(select.value);if(team.members.includes(id)){alert('Ese Pokémon ya está en este equipo.');select.value='';return}if(team.members.length>=6){alert('Cada equipo admite un máximo de seis Pokémon.');return}team.members.push(id);saveProgress();renderTeams();loadPokemonData(id).then(renderTeams);});
+  $('teams-list').addEventListener('click',e=>{const remove=e.target.closest('[data-team-remove]'),rename=e.target.closest('[data-team-rename]'),del=e.target.closest('[data-team-delete]');if(remove){const team=ensureTeams().find(t=>t.id===remove.dataset.teamRemove);if(team){team.members.splice(Number(remove.dataset.slot),1);saveProgress();renderTeams()}}else if(rename){const team=ensureTeams().find(t=>t.id===rename.dataset.teamRename);if(team){const name=prompt('Nuevo nombre del equipo:',team.name);if(name!==null&&name.trim()){team.name=name.trim().slice(0,32);saveProgress();renderTeams()}}}else if(del){const team=ensureTeams().find(t=>t.id===del.dataset.teamDelete);if(team&&confirm(`¿Eliminar el equipo «${team.name}»? Esta acción no se puede deshacer.`)){progress.teams=ensureTeams().filter(t=>t.id!==team.id);saveProgress();renderTeams()}}});
+
+  function ensureState(id){if(!progress.pokemon)progress.pokemon={};if(!progress.pokemon[id])progress.pokemon[id]={status:'pending',shiny:false,favorite:false,notes:''};return progress.pokemon[id]}
+  const typeHTML=types=>types?.length?types.map(t=>`<span class="type-tag" style="background:${typeColors[t]||'#777'}">${typeNames[t]||t}</span>`).join(''):'<span class="type-tag type-unknown">Tipos…</span>';
+  function cardHTML(p){const st=entryState(p.id);const num=String(p.dexNo).padStart(3,'0');const sprite=`${SPRITE_BASE}${p.id}.gif`;const fallback=`${STATIC_BASE}${p.id}.png`;return `<article class="pokemon-card" data-card="${p.id}"><div class="pokemon-card-top"><span class="dex-number">#${num}</span><span>${st.status==='captured'?'✓ Capturado':'— Pendiente'}</span></div><button class="card-open" data-open="${p.id}" aria-label="Abrir ficha de ${p.name}"></button><div class="pokemon-sprite-wrap"><img class="pokemon-sprite" loading="lazy" src="${sprite}" data-fallback="${fallback}" alt="Sprite de ${p.name}" onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;this.dataset.fallback=''}else{this.style.opacity='.15'}"></div><h3>${p.name.replace(/-/g,' ')}</h3><div class="type-list" id="types-${p.id}">${typeHTML(cache[p.id]?.types)}</div>${(st.notes||'').trim()?'<div class="note-indicator">▤ Nota guardada</div>':''}<div class="card-actions"><button class="card-action ${st.status==='captured'?'captured':''}" data-capture="${p.id}">${st.status==='captured'?'✓ Capturado':'＋ Capturar'}</button><button class="card-action ${st.shiny?'active':''}" data-shiny="${p.id}" title="Marcar shiny">✦</button><button class="card-action ${st.favorite?'active':''}" data-fav="${p.id}" title="Favorito">★</button></div></article>`}
+  function renderGrid(){const q=$('pokemon-search').value.trim().toLocaleLowerCase('es');const filtered=pokemonList.filter(p=>{const st=entryState(p.id);const matches=String(p.dexNo).includes(q)||String(p.id).padStart(4,'0').includes(q)||p.name.replace(/-/g,' ').toLocaleLowerCase().includes(q);const filter=activeFilter==='all'||(activeFilter==='captured'&&st.status==='captured')||(activeFilter==='pending'&&st.status!=='captured')||(activeFilter==='shiny'&&st.shiny)||(activeFilter==='favorite'&&st.favorite)||(activeFilter==='notes'&&(st.notes||'').trim().length>0);return matches&&filter});$('pokemon-grid').innerHTML=filtered.map(cardHTML).join('');$('dex-count').textContent=`${filtered.length} / 301`;observeCards();}
+  function observeCards(){if(!('IntersectionObserver'in window))return;const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const id=Number(e.target.dataset.card);loadPokemonData(id);observer.unobserve(e.target)}})},{rootMargin:'250px'});document.querySelectorAll('.pokemon-card').forEach(c=>observer.observe(c));}
+  async function loadPokemonData(id){if(cache[id]?.types){const node=$(`types-${id}`);if(node)node.innerHTML=typeHTML(cache[id].types);return}try{const r=await fetch(`${API}/pokemon/${id}/`);if(!r.ok)throw Error('API');const d=await r.json();let types=d.types.sort((a,b)=>a.slot-b.slot).map(x=>x.type.name);if(types.includes('fairy'))types=types.map(t=>t==='fairy'?'normal':t);cache[id]={types,stats:d.stats.map(x=>({name:x.stat.name,value:x.base_stat}))};saveCache();const node=$(`types-${id}`);if(node)node.innerHTML=typeHTML(types)}catch(_){const node=$(`types-${id}`);if(node)node.innerHTML='<span class="type-tag type-unknown">Sin conexión</span>'}}
+  async function loadDex(){ $('dex-loading').hidden=false;$('dex-error').hidden=true;$('pokemon-grid').innerHTML='';$('dex-status').textContent='Consultando PokéAPI…';try{const r=await fetch(DEX_URL);if(!r.ok)throw Error('No se pudo consultar la Pokédex regional');const data=await r.json();if(!data.pokemon_entries||data.pokemon_entries.length!==301)throw Error('La respuesta no contiene las 301 entradas esperadas');pokemonList=data.pokemon_entries.map(e=>{const id=Number(e.pokemon_species.url.match(/pokemon-species\/(\d+)/)[1]);return{id,dexNo:e.entry_number-1,name:e.pokemon_species.name}}).sort((a,b)=>a.dexNo-b.dexNo);$('dex-loading').hidden=true;$('dex-status').textContent='301 Pokémon de Blanco 2 · orden regional';renderGrid();renderTeams();updateDashboard()}catch(err){$('dex-loading').hidden=true;$('dex-error').hidden=false;$('dex-status').textContent='No se pudo cargar la Pokédex';console.error(err)}}
+  $('dex-retry').addEventListener('click',loadDex);$('pokemon-search').addEventListener('input',renderGrid);
+  document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{activeFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('selected',x===b));renderGrid()}));
+  $('pokemon-grid').addEventListener('click',e=>{const cap=e.target.closest('[data-capture]');const shiny=e.target.closest('[data-shiny]');const fav=e.target.closest('[data-fav]');const open=e.target.closest('[data-open]');if(cap){const st=ensureState(cap.dataset.capture);st.status=st.status==='captured'?'pending':'captured';saveProgress();renderGrid();updateDashboard()}else if(shiny){const st=ensureState(shiny.dataset.shiny);st.shiny=!st.shiny;saveProgress();renderGrid();updateDashboard()}else if(fav){const st=ensureState(fav.dataset.fav);st.favorite=!st.favorite;saveProgress();renderGrid();updateDashboard()}else if(open){const p=pokemonList.find(x=>x.id===Number(open.dataset.open));if(p)openDetails(p)}});
+  function ensureModal(){if(modal)return;modal=document.createElement('div');modal.className='modal-backdrop';modal.id='pokemon-modal';modal.innerHTML=`<section class="pokemon-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-head"><div><p class="eyebrow" id="modal-number">POKÉDEX REGIONAL</p><h2 id="modal-title">Pokémon</h2></div><button class="modal-close" id="modal-close" aria-label="Cerrar">✕</button></div><div id="modal-content"><div class="loading-state"><div class="loading-spinner"></div>Cargando ficha…</div></div></section>`;document.body.appendChild(modal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});$('modal-close').addEventListener('click',closeModal);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()})}
+  function closeModal(){modal?.classList.remove('open')}
+  async function openDetails(p){ensureModal();$('modal-number').textContent=`#${String(p.dexNo).padStart(3,'0')} · N.º ${String(p.id).padStart(4,'0')} NACIONAL`;$('modal-title').textContent=p.name.replace(/-/g,' ');modal.classList.add('open');$('modal-content').innerHTML='<div class="loading-state"><div class="loading-spinner"></div>Cargando estadísticas y evoluciones…</div>';try{const [pr,sr]=await Promise.all([fetch(`${API}/pokemon/${p.id}/`),fetch(`${API}/pokemon-species/${p.id}/`)]);if(!pr.ok||!sr.ok)throw Error('No disponible');const d=await pr.json(),sp=await sr.json();let types=d.types.sort((a,b)=>a.slot-b.slot).map(x=>x.type.name);if(types.includes('fairy'))types=types.map(t=>t==='fairy'?'normal':t);cache[p.id]={types,stats:d.stats.map(x=>({name:x.stat.name,value:x.base_stat}))};saveCache();const statNames={hp:'PS',attack:'Ataque',defense:'Defensa','special-attack':'At. especial','special-defense':'Def. especial',speed:'Velocidad'};const statHTML=d.stats.map(x=>`<div class="stat-line"><span>${statNames[x.stat.name]||x.stat.name}</span><strong>${x.base_stat}</strong><div class="stat-track"><span style="width:${Math.min(100,x.base_stat/255*100)}%"></span></div></div>`).join('');let evoHTML='<span class="detail-note">Cadena evolutiva no disponible.</span>';if(sp.evolution_chain?.url){const er=await fetch(sp.evolution_chain.url);if(er.ok){const ed=await er.json();evoHTML=`<div class="evo-tree">${renderEvoNode(ed.chain,null,0,p.id)}</div>`}}
+      const flavor=sp.flavor_text_entries?.find(x=>x.language.name==='es')?.flavor_text||sp.flavor_text_entries?.find(x=>x.language.name==='en')?.flavor_text||'Ficha de especie de Pokémon.';const st=ensureState(p.id);const safeNote=(st.notes||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');$('modal-content').innerHTML=`<div class="detail-hero"><img src="${SPRITE_BASE}${p.id}.gif" onerror="this.src='${STATIC_BASE}${p.id}.png'" alt="Sprite de ${p.name}"><div><p>${types.map(t=>typeNames[t]||t).join(' · ')}</p><p>${flavor.replace(/[\n\f]/g,' ')}</p><div class="detail-controls"><button class="card-action ${st.status==='captured'?'captured':''}" id="modal-capture">${st.status==='captured'?'✓ Capturado':'＋ Capturar'}</button><button class="card-action ${st.shiny?'active':''}" id="modal-shiny">${st.shiny?'✦ Shiny':'✧ Marcar shiny'}</button><button class="card-action ${st.favorite?'active':''}" id="modal-favorite">${st.favorite?'★ Favorito':'☆ Favorito'}</button></div></div></div><div class="detail-section"><h3>Mis notas</h3><textarea class="notes-area" id="pokemon-notes" maxlength="1000" placeholder="Por ejemplo: dónde lo encontré, naturaleza, nivel, mote…">${safeNote}</textarea><div class="save-note-row"><span class="save-note-status" id="note-save-status">Se guarda automáticamente</span><span class="detail-note" id="note-length">${(st.notes||'').length}/1000</span></div><p class="notes-help">Tus notas son privadas y se guardan en este navegador.</p></div><div class="detail-section"><h3>Estadísticas base</h3>${statHTML}<p class="detail-note">Total: ${d.stats.reduce((a,x)=>a+x.base_stat,0)}</p></div><div class="detail-section"><h3>Cadena evolutiva</h3>${evoHTML}<p class="detail-note">Los requisitos proceden de PokéAPI y pueden incluir condiciones de generaciones posteriores; en Unova, algunas evoluciones (como las de tipo Hada) no están disponibles.</p></div><div class="detail-section"><h3>Dónde encontrarlo</h3><div id="enc-box"><div class="detail-note">Buscando zonas…</div></div></div>`;loadEncounters(p.id);const refreshModalFlags=()=>{const state=ensureState(p.id);$('modal-capture').textContent=state.status==='captured'?'✓ Capturado':'＋ Capturar';$('modal-capture').classList.toggle('captured',state.status==='captured');$('modal-shiny').textContent=state.shiny?'✦ Shiny':'✧ Marcar shiny';$('modal-shiny').classList.toggle('active',state.shiny);$('modal-favorite').textContent=state.favorite?'★ Favorito':'☆ Favorito';$('modal-favorite').classList.toggle('active',state.favorite);renderGrid();updateDashboard()};$('modal-capture').addEventListener('click',()=>{const state=ensureState(p.id);state.status=state.status==='captured'?'pending':'captured';saveProgress();refreshModalFlags()});$('modal-shiny').addEventListener('click',()=>{const state=ensureState(p.id);state.shiny=!state.shiny;saveProgress();refreshModalFlags()});$('modal-favorite').addEventListener('click',()=>{const state=ensureState(p.id);state.favorite=!state.favorite;saveProgress();refreshModalFlags()});$('pokemon-notes').addEventListener('input',e=>{const state=ensureState(p.id);state.notes=e.target.value;saveProgress();$('note-length').textContent=`${state.notes.length}/1000`;$('note-save-status').textContent='Guardado';updateDashboard();const card=document.querySelector(`[data-card="${p.id}"]`);if(card){const old=card.querySelector('.note-indicator');if(state.notes.trim()&&!old){const badge=document.createElement('div');badge.className='note-indicator';badge.textContent='▤ Nota guardada';card.querySelector('.type-list').after(badge)}else if(!state.notes.trim()&&old){old.remove()}}});}catch(err){$('modal-content').innerHTML='<p class="detail-note">No se han podido cargar los datos ampliados. Comprueba tu conexión y vuelve a abrir la ficha.</p>';console.error(err)}}
+  /* ---------- Fase 5a: requisitos de evolución ---------- */
+  const evoTriggers={'level-up':'Subir de nivel','trade':'Intercambio','use-item':'Usar objeto','shed':'Hueco libre y Poké Ball en el equipo','spin':'Girar','tower-of-darkness':'Torre Oscuridad','tower-of-waters':'Torre Agua','three-critical-hits':'Tres golpes críticos','take-damage':'Recibir daño'};
+  const timeNames={day:'de día',night:'de noche'};
+  const prettify=s=>String(s).replace(/-/g,' ');
+  function evoMethod(details){
+    if(!Array.isArray(details)||!details.length)return '';
+    return details.map(d=>{
+      const parts=[];const trig=d.trigger?.name;
+      if(d.min_level)parts.push(`Nivel ${d.min_level}`);
+      else if(trig==='use-item'&&d.item)parts.push(`Usar ${prettify(d.item.name)}`);
+      else if(trig==='trade')parts.push(d.trade_species?`Intercambio por ${prettify(d.trade_species.name)}`:'Intercambio');
+      else if(trig&&evoTriggers[trig])parts.push(evoTriggers[trig]);
+      if(d.held_item)parts.push(`con ${prettify(d.held_item.name)}`);
+      if(d.known_move)parts.push(`conociendo ${prettify(d.known_move.name)}`);
+      if(d.min_happiness)parts.push(`felicidad ≥ ${d.min_happiness}`);
+      if(d.min_affection)parts.push(`afecto ≥ ${d.min_affection}`);
+      if(d.min_beauty)parts.push(`belleza ≥ ${d.min_beauty}`);
+      if(d.time_of_day&&timeNames[d.time_of_day])parts.push(timeNames[d.time_of_day]);
+      if(d.gender===1)parts.push('solo hembra');
+      if(d.gender===2)parts.push('solo macho');
+      if(d.location)parts.push(`en ${prettify(d.location.name)}`);
+      if(d.party_species)parts.push(`con ${prettify(d.party_species.name)} en el equipo`);
+      if(d.needs_overworld_rain)parts.push('con lluvia');
+      if(d.turn_upside_down)parts.push('con la consola boca abajo');
+      if(typeof d.relative_physical_stats==='number'){parts.push(d.relative_physical_stats>0?'Ataque > Defensa':d.relative_physical_stats<0?'Ataque < Defensa':'Ataque = Defensa')}
+      return parts.join(' · ')||'Condición especial';
+    }).join(' / ');
+  }
+  function renderEvoNode(node,details,depth,currentId){
+    const name=node.species.name;
+    const speciesId=Number((node.species.url.match(/pokemon-species\/(\d+)/)||[])[1]);
+    const isCurrent=speciesId===currentId;
+    const method=depth>0?evoMethod(details):'';
+    let html=`<div class="evo-step" style="margin-left:${depth*16}px">${depth>0?'<span class="muted">↳</span>':''}${method?`<span class="evo-method">${escapeHTML(method)}</span><span class="muted">→</span>`:''}<span class="evo-chip" ${isCurrent?'style="border:1px solid var(--accent);color:var(--accent-2)"':''}>${escapeHTML(prettify(name))}</span></div>`;
+    (node.evolves_to||[]).forEach(child=>{html+=renderEvoNode(child,child.evolution_details,depth+1,currentId)});
+    if(depth===0&&!(node.evolves_to||[]).length)html+='<span class="detail-note">Este Pokémon no evoluciona.</span>';
+    return html;
+  }
+
+  /* ---------- Fase 6: dónde encontrarlo (Blanco 2 / Negro 2) ---------- */
+  const methodNames={walk:'Hierba','dark-grass':'Hierba oscura','grass-spots':'Hierba agitada','cave-spots':'Polvo de cueva','bridge-spots':'Sombra en puente',surf:'Surf','surf-spots':'Agua agitada','super-rod':'Ultracaña','super-rod-spots':'Burbujas (Ultracaña)','good-rod':'Supercaña','old-rod':'Caña vieja','rock-smash':'Golpe roca',headbutt:'Golpe cabeza','yellow-flowers':'Flores amarillas','purple-flowers':'Flores moradas','red-flowers':'Flores rojas','rustling-bush':'Arbusto agitado','gift':'Regalo','gift-egg':'Huevo regalo','only-one':'Único','roaming-grass':'Errante','roaming-water':'Errante (agua)','npc-trade':'Intercambio con NPC'};
+  function prettyArea(name){return String(name).replace(/-area$/,'').replace(/^unova-/,'').replace(/-/g,' ').replace(/^route (\d+)/,'ruta $1').replace(/^(\w+) city\b/,'ciudad $1')}
+  async function loadEncounters(id){
+    const box=$('enc-box');if(!box)return;
+    try{
+      const r=await fetch(`${API}/pokemon/${id}/encounters`);
+      if(!r.ok)throw Error('API');
+      const data=await r.json();
+      const areas=new Map();
+      data.forEach(a=>{
+        (a.version_details||[]).forEach(v=>{
+          const ver=v.version?.name;if(ver!=='black-2'&&ver!=='white-2')return;
+          if(!areas.has(a.location_area.name))areas.set(a.location_area.name,{versions:new Set(),methods:new Map()});
+          const area=areas.get(a.location_area.name);area.versions.add(ver);
+          const perMethod=new Map();
+          (v.encounter_details||[]).forEach(e=>{
+            const m=e.method?.name||'?';
+            const cur=perMethod.get(m)||{min:e.min_level,max:e.max_level,chance:0};
+            cur.min=Math.min(cur.min,e.min_level);cur.max=Math.max(cur.max,e.max_level);cur.chance+=e.chance||0;perMethod.set(m,cur);
+          });
+          perMethod.forEach((val,m)=>{
+            const prev=area.methods.get(m);
+            if(!prev)area.methods.set(m,{...val});
+            else{prev.min=Math.min(prev.min,val.min);prev.max=Math.max(prev.max,val.max);prev.chance=Math.max(prev.chance,val.chance)}
+          });
+        });
+      });
+      if(!areas.size){box.innerHTML='<p class="detail-note">No hay zonas registradas en Blanco 2 / Negro 2. Puede conseguirse por evolución, regalo, intercambio o evento.</p>';return}
+      const html=[...areas.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([name,a])=>{
+        const only=a.versions.size===1?(a.versions.has('white-2')?'<span class="enc-ver">Solo Blanco 2</span>':'<span class="enc-ver">Solo Negro 2</span>'):'';
+        const lines=[...a.methods.entries()].map(([m,x])=>`<li><span>${escapeHTML(methodNames[m]||prettify(m))}</span><span class="muted">${x.min===x.max?`Nv. ${x.min}`:`Nv. ${x.min}–${x.max}`}${x.chance?` · ${Math.min(100,x.chance)}%`:''}</span></li>`).join('');
+        return `<div class="enc-area"><div class="enc-head"><strong>${escapeHTML(prettyArea(name))}</strong>${only}</div><ul class="enc-list">${lines}</ul></div>`;
+      }).join('');
+      box.innerHTML=html+'<p class="detail-note">Datos de PokéAPI: pueden faltar regalos, eventos o encuentros especiales.</p>';
+    }catch(_){box.innerHTML='<p class="detail-note">No se han podido cargar las zonas. Comprueba tu conexión.</p>'}
+  }
+
+  /* ---------- Fase 5b: tabla de tipos (5.ª generación, 17 tipos) ---------- */
+  const TYPES=['normal','fire','water','electric','grass','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel'];
+  const ATTACK={
+    normal:{half:['rock','steel'],zero:['ghost']},
+    fire:{double:['grass','ice','bug','steel'],half:['fire','water','rock','dragon']},
+    water:{double:['fire','ground','rock'],half:['water','grass','dragon']},
+    electric:{double:['water','flying'],half:['electric','grass','dragon'],zero:['ground']},
+    grass:{double:['water','ground','rock'],half:['fire','grass','poison','flying','bug','dragon','steel']},
+    ice:{double:['grass','ground','flying','dragon'],half:['fire','water','ice','steel']},
+    fighting:{double:['normal','ice','rock','dark','steel'],half:['poison','flying','psychic','bug'],zero:['ghost']},
+    poison:{double:['grass'],half:['poison','ground','rock','ghost'],zero:['steel']},
+    ground:{double:['fire','electric','poison','rock','steel'],half:['grass','bug'],zero:['flying']},
+    flying:{double:['grass','fighting','bug'],half:['electric','rock','steel']},
+    psychic:{double:['fighting','poison'],half:['psychic','steel'],zero:['dark']},
+    bug:{double:['grass','psychic','dark'],half:['fire','fighting','poison','flying','ghost','steel']},
+    rock:{double:['fire','ice','flying','bug'],half:['fighting','ground','steel']},
+    ghost:{double:['psychic','ghost'],half:['dark','steel'],zero:['normal']},
+    dragon:{double:['dragon'],half:['steel']},
+    dark:{double:['psychic','ghost'],half:['fighting','dark','steel']},
+    steel:{double:['ice','rock'],half:['fire','water','electric','steel']}
+  };
+  function mult(att,def){const a=ATTACK[att];if(a.zero?.includes(def))return 0;if(a.double?.includes(def))return 2;if(a.half?.includes(def))return 0.5;return 1}
+  const typeTag=t=>`<span class="type-tag" style="background:${typeColors[t]}">${typeNames[t]}</span>`;
+  let typeMode='defend',defendSel=[],attackSel=null;
+  function renderTypePicker(){
+    const picker=$('type-picker');
+    picker.hidden=typeMode==='matrix';
+    picker.innerHTML=TYPES.map(t=>{const sel=typeMode==='defend'?defendSel.includes(t):attackSel===t;return `<button class="type-pick ${sel?'selected':''}" data-type-pick="${t}" style="background:${typeColors[t]}" aria-pressed="${sel}">${typeNames[t]}</button>`}).join('');
+  }
+  function effGroup(title,label,types){return `<div class="eff-group"><h3>${title} <span class="eff-mult">${label}</span></h3>${types.length?`<div class="type-list">${types.map(typeTag).join('')}</div>`:'<span class="eff-none">Ninguno</span>'}</div>`}
+  function renderTypeResult(){
+    const box=$('type-result'),wrap=$('type-matrix-wrap');
+    wrap.hidden=typeMode!=='matrix';box.hidden=typeMode==='matrix';
+    if(typeMode==='matrix'){renderMatrix();return}
+    if(typeMode==='defend'){
+      if(!defendSel.length){box.innerHTML='<div class="empty-state" style="margin-top:0"><div class="empty-orb">◈</div><h2>Elige uno o dos tipos</h2><p>Selecciona el tipo (o la combinación de tipos) de un Pokémon para ver qué ataques le hacen más o menos daño.</p></div>';return}
+      const groups={4:[],2:[],0.5:[],0.25:[],0:[]};
+      TYPES.forEach(att=>{const m=defendSel.reduce((acc,d)=>acc*mult(att,d),1);if(groups[m])groups[m].push(att)});
+      box.innerHTML=`<p class="muted small">Defensor: ${defendSel.map(typeTag).join(' ')}</p>`+effGroup('Muy débil a','×4',groups[4])+effGroup('Débil a','×2',groups[2])+effGroup('Resiste','×½',groups[0.5])+effGroup('Resiste mucho','×¼',groups[0.25])+effGroup('Inmune a','×0',groups[0]);
+    }else{
+      if(!attackSel){box.innerHTML='<div class="empty-state" style="margin-top:0"><div class="empty-orb">◈</div><h2>Elige un tipo de ataque</h2><p>Selecciona un tipo para ver a qué tipos hace más o menos daño.</p></div>';return}
+      const g={2:[],1:[],0.5:[],0:[]};TYPES.forEach(d=>g[mult(attackSel,d)].push(d));
+      box.innerHTML=`<p class="muted small">Atacante: ${typeTag(attackSel)}</p>`+effGroup('Supereficaz contra','×2',g[2])+effGroup('Poco eficaz contra','×½',g[0.5])+effGroup('No afecta a','×0',g[0]);
+    }
+  }
+  function renderMatrix(){
+    const head=`<tr><th class="corner">ATA ↓ / DEF →</th>${TYPES.map(t=>`<th style="background:${typeColors[t]}" title="${typeNames[t]}">${typeNames[t].slice(0,3)}</th>`).join('')}</tr>`;
+    const rows=TYPES.map(a=>`<tr><th style="background:${typeColors[a]}">${typeNames[a]}</th>${TYPES.map(d=>{const m=mult(a,d);return m===1?'<td></td>':`<td class="${m===2?'eff-2':m===0.5?'eff-05':'eff-0'}">${m===2?'2':m===0.5?'½':'0'}</td>`}).join('')}</tr>`).join('');
+    $('type-matrix-wrap').innerHTML=`<table class="type-matrix"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
+    if(!$('type-matrix-legend')){const l=document.createElement('p');l.id='type-matrix-legend';l.className='type-matrix-legend';l.textContent='Filas: tipo del ataque · Columnas: tipo del defensor · Casilla vacía = daño normal (×1).';$('type-matrix-wrap').after(l)}
+    $('type-matrix-legend').hidden=false;
+  }
+  document.querySelectorAll('[data-type-mode]').forEach(b=>b.addEventListener('click',()=>{typeMode=b.dataset.typeMode;document.querySelectorAll('[data-type-mode]').forEach(x=>x.classList.toggle('selected',x===b));if($('type-matrix-legend'))$('type-matrix-legend').hidden=typeMode!=='matrix';renderTypePicker();renderTypeResult()}));
+  $('type-picker').addEventListener('click',e=>{const b=e.target.closest('[data-type-pick]');if(!b)return;const t=b.dataset.typePick;if(typeMode==='defend'){if(defendSel.includes(t))defendSel=defendSel.filter(x=>x!==t);else{defendSel.push(t);if(defendSel.length>2)defendSel.shift()}}else{attackSel=attackSel===t?null:t}renderTypePicker();renderTypeResult()});
+  renderTypePicker();renderTypeResult();
+
+  /* ---------- Fase 5c: copias de seguridad ---------- */
+  function setBackupStatus(msg,kind){const n=$('backup-status');n.textContent=msg;n.className=`backup-status ${kind||''}`}
+  function sanitizeProgress(raw){
+    const out={pokemon:{},teams:[]};
+    if(raw.pokemon&&typeof raw.pokemon==='object'&&!Array.isArray(raw.pokemon)){
+      Object.entries(raw.pokemon).forEach(([k,v])=>{
+        const id=Number(k);if(!Number.isInteger(id)||id<1||id>1000||!v||typeof v!=='object')return;
+        out.pokemon[id]={status:v.status==='captured'?'captured':'pending',shiny:!!v.shiny,favorite:!!v.favorite,notes:typeof v.notes==='string'?v.notes.slice(0,1000):''};
+      });
+    }
+    if(Array.isArray(raw.teams)){
+      raw.teams.forEach(t=>{
+        if(!t||typeof t!=='object')return;
+        const members=Array.isArray(t.members)?[...new Set(t.members.map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=1000))].slice(0,6):[];
+        out.teams.push({id:typeof t.id==='string'&&t.id?t.id.slice(0,40):Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:String(t.name||'Equipo sin nombre').trim().slice(0,32)||'Equipo sin nombre',members});
+      });
+    }
+    return out;
+  }
+  $('export-json').addEventListener('click',()=>{
+    const payload={app:'unovadex',version:1,exportedAt:new Date().toISOString(),progress:{pokemon:progress.pokemon||{},teams:ensureTeams()}};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');
+    a.href=url;a.download=`unovadex-copia-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setBackupStatus('Copia de seguridad descargada.','ok');
+  });
+  $('import-json').addEventListener('click',()=>$('import-file').click());
+  $('import-file').addEventListener('change',async e=>{
+    const file=e.target.files[0];e.target.value='';if(!file)return;
+    if(file.size>5*1024*1024){setBackupStatus('El archivo es demasiado grande para ser una copia de UnovaDex.','err');return}
+    try{
+      const data=JSON.parse(await file.text());
+      if(!data||data.app!=='unovadex'||typeof data.progress!=='object'||data.progress===null)throw Error('formato');
+      const clean=sanitizeProgress(data.progress);
+      const caps=Object.values(clean.pokemon).filter(x=>x.status==='captured').length;
+      if(!confirm(`Se va a reemplazar tu progreso actual por la copia seleccionada (${caps} capturados, ${clean.teams.length} equipos). ¿Continuar?`))return;
+      progress=clean;saveProgress();renderGrid();renderTeams();updateDashboard();
+      setBackupStatus('Copia importada correctamente.','ok');
+    }catch(_){setBackupStatus('No se ha podido importar: el archivo no es una copia válida de UnovaDex.','err')}
+  });
+
+  if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+
+  updateDashboard();renderTeams();loadDex();
+})();
+  </script>
+</body>
+</html>

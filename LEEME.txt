@@ -1,0 +1,16 @@
+UnovaDex como app de escritorio
+================================
+La instalación como app requiere abrir la página desde http://localhost o https
+(no funciona abriendo index.html con doble clic).
+
+Opción A (en tu ordenador, con Python instalado):
+  1. Descomprime esta carpeta.
+  2. Abre una terminal dentro de ella y ejecuta:  python3 -m http.server 8080
+  3. Abre Chrome o Edge en http://localhost:8080
+  4. Pulsa el icono de instalar (derecha de la barra de direcciones) -> "Instalar UnovaDex".
+
+Opción B (sin terminal): sube la carpeta a Netlify Drop, GitHub Pages o Cloudflare Pages
+y abre la URL que te den; instálala igual desde Chrome/Edge.
+
+Nota: tus capturas y notas se guardan en el navegador de cada dominio/puerto. Si cambias de
+dirección (por ejemplo de localhost:8080 a otra), usa Exportar JSON / Importar JSON.
